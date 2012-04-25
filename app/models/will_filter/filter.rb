@@ -147,7 +147,13 @@ module WillFilter
         end
         inner_joins.each do |inner_join|
           join_class = association_class(inner_join)
-          join_class.columns.each do |col|
+          join_class_columns = []           
+          begin
+            join_class.columns.each{|col| join_class_columns << col if col.name.to_sym == inner_join.last}           
+          rescue
+            join_class.columns.each{|col| join_class_columns << col}           
+          end
+          join_class_columns.each do |col|          
             defs[:"#{join_class.to_s.underscore}.#{col.name.to_sym}"] = default_condition_definition_for(col.name, col.sql_type)
           end
         end
